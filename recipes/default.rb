@@ -68,13 +68,15 @@ else
  end
 end
 
-case node[:lsb][:codename]
-when "karmic"
-  template "/etc/default/memcached" do
-    source "memcached.default.erb"
-    owner "root"
-    group "root"
-    mode "0644"
-    notifies :restart, resources(:service => "memcached"), :immediately
+if node[:lsb]
+  case node[:lsb][:codename]
+  when "karmic"
+      template "/etc/default/memcached" do
+        source "memcached.default.erb"
+        owner "root"
+        group "root"
+        mode "0644"
+        notifies :restart, resources(:service => "memcached"), :immediately
+      end
   end
 end
