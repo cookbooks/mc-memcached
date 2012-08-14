@@ -25,6 +25,8 @@ package "libmemcache-dev" do
   case node[:platform]
   when "redhat","centos","fedora"
     package_name "libmemcached-devel"
+  when "smartos"
+    package_name "libmemcached"
   else
     package_name "libmemcache-dev"
   end
