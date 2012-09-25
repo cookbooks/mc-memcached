@@ -40,45 +40,56 @@ end
 
 case node[:platform]
 when "redhat","centos","fedora"
- template "/etc/sysconfig/memcached" do
-  source "memcached.sysconfig.erb"
-  owner "root"
-  group "root"
-  mode "0644"
-  variables(
-    :listen => node[:memcached][:listen],
-    :user => node[:memcached][:user],
-    :port => node[:memcached][:port],
-    :maxconn => node[:memcached][:maxconn],
-    :memory => node[:memcached][:memory]
-  )
-  notifies :restart, resources(:service => "memcached"), :immediately
- end
+  template "/etc/sysconfig/memcached" do
+    source "memcached.sysconfig.erb"
+    owner "root"
+    group "root"
+    mode "0644"
+    variables(
+      :listen => node[:memcached][:listen],
+      :user => node[:memcached][:user],
+      :port => node[:memcached][:port],
+      :maxconn => node[:memcached][:maxconn],
+      :memory => node[:memcached][:memory]
+    )
+    notifies :restart, resources(:service => "memcached"), :immediately
+  end 
+when "smartos"
+  smf "memcached" do
+    start_command "/opt/local/bin/memcached  -d -p #{node['memcached']['port']} -l #{node['memcached']['listen']} -m #{node['memcached']['memory']} -c #{node['memcached']['maxconn']} -u memcached #{node['memcached']['large_pages'] ? '-L' : ''}"
+    start_timeout 90
+    stop_command ":kill"
+    stop_timeout 30
+    restart_command ":kill -SIGUSR2"
+    restart_timeout 120
+    action :install
+  end
 else
- template "/etc/memcached.conf" do
-  source "memcached.conf.erb"
-  owner "root"
-  group "root"
-  mode "0644"
-  variables(
-    :listen => node[:memcached][:listen],
-    :user => node[:memcached][:user],
-    :port => node[:memcached][:port],
-    :memory => node[:memcached][:memory]
-  )
-  notifies :restart, resources(:service => "memcached"), :immediately
- end
+  template "/etc/memcached.conf" do
+    source "memcached.conf.erb"
+    owner "root"
+    group "root"
+    mode "0644"
+    variables(
+      :listen => node[:memcached][:listen],
+      :user => node[:memcached][:user],
+      :port => node[:memcached][:port],
+      :memory => node[:memcached][:memory],
+      :large_pages => node[:memcached][:large_pages]
+    )
+    notifies :restart, resources(:service => "memcached"), :immediately
+  end
 end
 
 if node[:lsb]
   case node[:lsb][:codename]
   when "karmic"
-      template "/etc/default/memcached" do
-        source "memcached.default.erb"
-        owner "root"
-        group "root"
-        mode "0644"
-        notifies :restart, resources(:service => "memcached"), :immediately
-      end
+    template "/etc/default/memcached" do
+      source "memcached.default.erb"
+      owner "root"
+      group "root"
+      mode "0644"
+      notifies :restart, resources(:service => "memcached"), :immediately
+    end
   end
 end

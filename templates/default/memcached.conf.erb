@@ -48,3 +48,6 @@ logfile /var/log/memcached.log
 
 # Maximize core file limit
 # -r
+
+# Large virtual memory pages TLB :)
+<%= '-L' if @large_pages %>
