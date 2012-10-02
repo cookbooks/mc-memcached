@@ -12,3 +12,4 @@ default[:memcached][:maxconn] = "1024"
 
 # Setting for performance
 default[:memcached][:large_pages] = true
+default[:memcached][:slab_page_size] = "1m"

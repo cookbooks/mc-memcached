@@ -56,7 +56,7 @@ when "redhat","centos","fedora"
   end 
 when "smartos"
   smf "memcached" do
-    start_command "/opt/local/bin/memcached  -d -p #{node['memcached']['port']} -l #{node['memcached']['listen']} -m #{node['memcached']['memory']} -c #{node['memcached']['maxconn']} -u memcached #{node['memcached']['large_pages'] ? '-L' : ''}"
+    start_command "/opt/local/bin/memcached  -d -I #{node['memcached']['slab_page_size']} -p #{node['memcached']['port']} -l #{node['memcached']['listen']} -m #{node['memcached']['memory']} -c #{node['memcached']['maxconn']} -u memcached #{node['memcached']['large_pages'] ? '-L' : ''}"
     start_timeout 90
     stop_command ":kill"
     stop_timeout 30
